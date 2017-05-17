@@ -1,0 +1,12 @@
+{
+  "name": "reassign-angular-loader",
+  "version": "1.0.0",
+  "description": "yet another way to have more than one angularjs app on the same page",
+  "main": "index.js",
+  "repository": "https://github.com/nskazki/reassign-angular-loader",
+  "author": "nskazki <nskazki@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "webpack": "^1.13.3"
+  }
+}
