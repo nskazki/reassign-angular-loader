@@ -2,7 +2,7 @@
 
 let _uniqueId = 0
 const uniqueId = () => ++_uniqueId
-const deline = str => str.replace(/[\r\n]/g, ' ').replace(/\s{2,}/, ' ')
+const deline = str => str.replace(/[\r\n]/g, ' ').replace(/\s{2,}/g, ' ')
 
 module.exports = function reassignAngularLoader(source) {
   this.cacheable()
