@@ -2,6 +2,7 @@
 
 let _uniqueId = 0
 const uniqueId = () => ++_uniqueId
+const deline = str => str.replace(/[\r\n]/g, ' ').replace(/\s{2,}/, ' ')
 
 module.exports = function reassignAngularLoader(source) {
   this.cacheable()
@@ -12,15 +13,17 @@ module.exports = function reassignAngularLoader(source) {
     ? 'var angular = require("angular");'
     : '/* ANGULAR ALREADY DEFINED AS LOCAL VARIABLE */'
 
-  return `
-/* REASSIGN ANGULAR LOADER -- https://github.com/nskazki/reassign-angular-loader */
+  const header = deline(`
+    /* REASSIGN ANGULAR LOADER HEADER -- https://github.com/nskazki/reassign-angular-loader */
 
-var ${origPropName} = window.angular;
-delete window.angular;
-window.angular = require('angular');
-${angularDefineStr}
+    var ${origPropName} = window.angular;
+    delete window.angular;
+    window.angular = require('angular');
+    ${angularDefineStr}`)
 
-${source};
+  const footer = deline(`
+    /* REASSIGN ANGULAR LOADER FOOTER -- https://github.com/nskazki/reassign-angular-loader */
+    window.angular = ${origPropName};`)
 
-window.angular = ${origPropName};`
+  return `${header} ${source}; ${footer}`
 }
