@@ -15,15 +15,18 @@ module.exports = function reassignAngularLoader(source) {
 
   const header = deline(`
     /* REASSIGN ANGULAR LOADER HEADER -- https://github.com/nskazki/reassign-angular-loader */
+    var _window;
+    try { _window = Function('return this')() || (42, eval)('this'); }
+    catch (_err) { _window = window || global || GLOBAL || {}; }
 
-    var ${origPropName} = window.angular;
-    delete window.angular;
-    window.angular = require('angular');
+    var ${origPropName} = _window.angular;
+    delete _window.angular;
+    _window.angular = require('angular');
     ${angularDefineStr}`)
 
   const footer = deline(`
     /* REASSIGN ANGULAR LOADER FOOTER -- https://github.com/nskazki/reassign-angular-loader */
-    window.angular = ${origPropName};`)
+    _window.angular = ${origPropName};`)
 
   return `${header} ${source}; ${footer}`
 }
