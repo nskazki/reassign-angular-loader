@@ -20,7 +20,6 @@ module.exports = function reassignAngularLoader(source) {
     catch (_err) { _window = window || global || GLOBAL || {}; }
 
     var ${origPropName} = _window.angular;
-    delete _window.angular;
     _window.angular = require('angular');
     ${angularDefineStr}`)
 
