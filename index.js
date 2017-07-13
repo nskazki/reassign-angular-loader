@@ -1,12 +1,10 @@
 'use strict'
 
-let _uniqueId = 0
-const uniqueId = () => ++_uniqueId
 const deline = str => str.replace(/[\r\n]/g, ' ').replace(/\s{2,}/g, ' ')
 
 module.exports = function reassignAngularLoader(source) {
   this.cacheable()
-  const origPropName = `__originalAngular${uniqueId()}`
+  const origPropName = '__reassign_angular_loader_originalAngular'
 
   const needDefineAngular = !/(var|let|const)\s+angular\s*=\s*require\(['"]angular["']\)/.test(source)
   const angularDefineStr = needDefineAngular
