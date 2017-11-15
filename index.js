@@ -4,26 +4,48 @@ const deline = str => str.replace(/[\r\n]/g, ' ').replace(/\s{2,}/g, ' ')
 
 module.exports = function reassignAngularLoader(source) {
   this.cacheable()
-  const origPropName = '__reassign_angular_loader_originalAngular'
 
-  const needDefineAngular = !/(var|let|const)\s+angular\s*=\s*require\(['"]angular["']\)/.test(source)
-  const angularDefineStr = needDefineAngular
-    ? 'var angular = require("angular");'
-    : '/* ANGULAR ALREADY DEFINED AS LOCAL VARIABLE */'
+  const isAngularItself = /angular[/\\]angular\.js/.test(this.resourcePath)
+  const isAngularWrapper = /angular[/\\]index\.js/.test(this.resourcePath)
+  const isAngularRequired = /(\.|\s|;|^)angular(\.|\[|\s|;|=|$)/.test(source)
 
-  const header = deline(`
-    /* REASSIGN ANGULAR LOADER HEADER -- https://github.com/nskazki/reassign-angular-loader */
-    var _window;
-    try { _window = Function('return this')() || (42, eval)('this'); }
-    catch (_err) { _window = window || global || GLOBAL || {}; }
+  const windowRefName = '__ral_windowRef'
+  const origAngularName = '__ral_origAngular'
 
-    var ${origPropName} = _window.angular;
-    _window.angular = require('angular');
-    ${angularDefineStr}`)
+  if (isAngularItself) {
+    const header = '/* REASSIGN ANGULAR LOADER -- ANGULAR ITSELF HEADER */'
+    const footer = '/* REASSIGN ANGULAR LOADER -- ANGULAR ITSELF FOOTER */'
+    return `${header} ${source}; ${footer}`
+  } else if (isAngularWrapper) {
+    const header = '/* REASSIGN ANGULAR LOADER -- ANGULAR WRAPPER HEADER */'
+    const footer = deline(`
+      /* REASSIGN ANGULAR LOADER -- ANGULAR WRAPPER FOOTER */
+      var ${windowRefName} = window || global || {};
+      ${windowRefName}.angular = undefined;`)
 
-  const footer = deline(`
-    /* REASSIGN ANGULAR LOADER FOOTER -- https://github.com/nskazki/reassign-angular-loader */
-    _window.angular = ${origPropName};`)
+    return `${header} ${source}; ${footer}`
+  } else if (isAngularRequired) {
+    const isLetDefined = /let\s+angular/.test(source)
+    const isConstDefined = /const\s+angular/.test(source)
 
-  return `${header} ${source}; ${footer}`
+    const glbDefinitionStr = `${windowRefName}.angular = require('angular');`
+    const varDefinitionStr = isConstDefined || isLetDefined
+      ? '/* ANGULAR VARIABLE DEFINITION CAN NOT BE OVERRIDDEN */'
+      : 'var angular = require("angular");'
+
+    const header = deline(`
+      /* REASSIGN ANGULAR LOADER -- HEADER */
+      var ${windowRefName} = window || global || {};
+      var ${origAngularName} = ${windowRefName}.angular;
+      ${glbDefinitionStr}
+      ${varDefinitionStr}`)
+
+    const footer = deline(`
+      /* REASSIGN ANGULAR LOADER -- FOOTER */
+      ${windowRefName}.angular = ${origAngularName};`)
+
+    return `${header} ${source}; ${footer}`
+  } else {
+    return source
+  }
 }
