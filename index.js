@@ -17,11 +17,14 @@ module.exports = function reassignAngularLoader(source) {
     const footer = '/* REASSIGN ANGULAR LOADER -- ANGULAR ITSELF FOOTER */'
     return `${header} ${source}; ${footer}`
   } else if (isAngularWrapper) {
-    const header = '/* REASSIGN ANGULAR LOADER -- ANGULAR WRAPPER HEADER */'
+    const header = deline(`
+      /* REASSIGN ANGULAR LOADER -- ANGULAR WRAPPER HEADER */
+      var ${windowRefName} = window || global || {};
+      var ${origAngularName} = ${windowRefName}.angular;
+      ${windowRefName}.angular = undefined;`)
     const footer = deline(`
       /* REASSIGN ANGULAR LOADER -- ANGULAR WRAPPER FOOTER */
-      var ${windowRefName} = window || global || {};
-      ${windowRefName}.angular = undefined;`)
+      ${windowRefName}.angular = ${origAngularName};`)
 
     return `${header} ${source}; ${footer}`
   } else if (isAngularRequired) {
