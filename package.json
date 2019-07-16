@@ -7,6 +7,6 @@
   "author": "nskazki <nskazki@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "webpack": "^1.13.3"
+    "webpack": "*"
   }
 }
