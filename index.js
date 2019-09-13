@@ -19,7 +19,7 @@ module.exports = function reassignAngularLoader(source) {
   } else if (isAngularWrapper) {
     const header = deline(`
       /* REASSIGN ANGULAR LOADER -- ANGULAR WRAPPER HEADER */
-      var ${windowRefName} = window || global || {};
+      var ${windowRefName} = typeof window !== 'undefined' ? window : {};
       var ${origAngularName} = ${windowRefName}.angular;
       ${windowRefName}.angular = undefined;`)
     const footer = deline(`
@@ -38,7 +38,7 @@ module.exports = function reassignAngularLoader(source) {
 
     const header = deline(`
       /* REASSIGN ANGULAR LOADER -- HEADER */
-      var ${windowRefName} = window || global || {};
+      var ${windowRefName} = typeof window !== 'undefined' ? window : {};
       var ${origAngularName} = ${windowRefName}.angular;
       ${glbDefinitionStr}
       ${varDefinitionStr}`)
